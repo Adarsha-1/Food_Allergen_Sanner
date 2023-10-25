@@ -84,6 +84,7 @@
 import React, { useState } from 'react';
 import { Text, View, StyleSheet, Button } from 'react-native';
 import BarcodeScanner from './BarcodeScanner';
+import { UserContextProvider } from './components/UserContext';
 import AppNavigator from './navigation/AppNavigator';
 
 export default function App() {
@@ -98,7 +99,10 @@ export default function App() {
     //   <BarcodeScanner onBarcodeScanned={handleBarcodeScanned} />
     //   <Text style={styles.barcodeText}>Scanned Barcode: {barcodeData}</Text>
     // </View>
-    <AppNavigator />
+    <UserContextProvider>
+      <AppNavigator />
+    </UserContextProvider>
+    // <AppNavigator />
   );
 }
 

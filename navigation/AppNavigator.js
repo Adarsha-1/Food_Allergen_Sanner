@@ -9,17 +9,47 @@ import HistoryScreen from '../components/HistoryScreen';
 import SettingsScreen from '../components/SettingsScreen';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AllergenDetails from '../components/AllergenDetails';
+import LoginScreen from '../components/LoginScreen';
 
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+
+const Lstack = createNativeStackNavigator();
+
+const SettingsStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name="Settings" component={SettingsScreen} />
+    <Stack.Screen name="Login" component={LoginScreen} />
+  </Stack.Navigator>
+);
+
+const HistoryStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen name='History' component={HistoryScreen} />
+    <Stack.Screen name='AllergenDetails' component={AllergenDetails}/>
+  </Stack.Navigator>
+)
 const AllergenStack = createNativeStackNavigator();
 
-const AllergenStackNavigator = () => (
-    <AllergenStack.Navigator>
-      <AllergenStack.Screen name="AllergenDetails" component={AllergenDetails} />
-    </AllergenStack.Navigator>
-  );
+const SettingsTab = createNativeStackNavigator();
+
+const SettingsTabNavigator = () => (
+  <SettingsTab.Navigator
+    // screenOptions={({ route }) => ({
+    //   tabBarIcon: ({ focused, color, size }) => {
+    //     if (route.name === 'Settings') {
+    //       return <MaterialCommunityIcons name="account" size={size} color={color} />;
+    //     }
+    //     return null;
+    //   },
+    // })}
+  >
+    <SettingsTab.Screen name='Settingscreen' component={SettingsScreen}  options={{ tabBarLabel: null }}/>
+    <SettingsTab.Screen name='Login' component={LoginScreen} options={{ tabBarLabel: null }}/>
+  </SettingsTab.Navigator>
+);
+
 
 const AppNavigator = () => {
 
@@ -29,32 +59,16 @@ const AppNavigator = () => {
     setBarcodeData(data);
   };
   return (
-    // <NavigationContainer>
-    //   <Stack.Navigator initialRouteName="Home">
-    //     <Stack.Screen name="Home" component={HomeScreen} />
-    //     <Stack.Screen name="History" component={HistoryScreen} />
-    //     <Stack.Screen name="Scanner" component={ScannerScreen} />
-    //     <Stack.Screen name="Settings" component={SettingsScreen} />
-    //   </Stack.Navigator>
-    // </NavigationContainer>
-
-    // <Tab.Navigator>
-    //     {/* <Tab.Screen name='Home' component={HomeScreen} /> */}
-    //     <Tab.Screen name='History' component={HistoryScreen} />
-    //     <Tab.Screen name='Scanner' component={ScannerScreen} />
-    //     <Tab.Screen name='Settings' component={SettingsScreen} />
-    // </Tab.Navigator>
-
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => {
             let iconName;
-            if (route.name === 'History') {
+            if (route.name === 'HistoryScreen') {
               iconName = 'history';
             } else if (route.name === 'Scanner') {
               iconName = 'camera';
-            } else if (route.name === 'Settings') {
+            } else if (route.name === 'SettingsScreen') {
               iconName = 'cog';
             }
 
@@ -70,35 +84,28 @@ const AppNavigator = () => {
         })}
       >
         <Tab.Screen
-          name='History'
-          component={HistoryScreen}
-          options={{ tabBarLabel: 'History' }}
+          name='HistoryScreen'
+          component={HistoryStack}
+          options={{ tabBarLabel: 'History', headerShown: false }}
         />
         <Tab.Screen
-  name='Scanner'
-  options={{
-    tabBarLabel: 'Scanner',
-    tabBarIcon: ({ color, size }) => (
-      <FontAwesome name='camera' size={size} color={color} />
-    ),
-  }}>
-  {() => <BarcodeScanner onBarcodeScanned={handleBarcodeScanned} />}
-</Tab.Screen>
+          name='Scanner'
+          options={{
+            tabBarLabel: 'Scanner',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome name='camera' size={size} color={color} />
+            ),
+          }}>
+          {() => <BarcodeScanner onBarcodeScanned={handleBarcodeScanned} />}
+        </Tab.Screen>
 
 
         <Tab.Screen
-          name='Settings'
-          component={SettingsScreen}
-          options={{ tabBarLabel: 'Settings' }}
+          name='SettingsScreen'
+          component={SettingsStack}
+          options={{ tabBarLabel: 'Settings', headerShown: false }}
         />
       </Tab.Navigator>
-
-      {/* <Stack.Navigator
-        screenOptions={{
-          headerShown: false, // Hide the header for AllergenDetails
-        }}>
-        <Stack.Screen name='AllergenDetails' component={AllergenDetails} />
-      </Stack.Navigator> */}
     </NavigationContainer>
     
   );

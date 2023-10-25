@@ -1,23 +1,34 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+const allergenIcons = {
+  'en:gluten': require('../assets/Allergen/gluten.png'),
+  'en:milk': require('../assets/Allergen/milk.png'),
+  'en:peanuts': require('../assets/Allergen/peanuts.png'),
+  'en:soybeans': require('../assets/Allergen/soy.png'),
+  'en:fish': require('../assets/Allergen/fish.png'),
+  'en:celery': require('../assets/Allergen/celery.png'),
+  'en:eggs': require('../assets/Allergen/eggs.png'),
+  'en:sesame-seeds': require('../assets/Allergen/sesame-seeds.png'),
+  'en:sulphur-dioxide-and-sulphites': require('../assets/Allergen/sulphur-dioxide-and-sulphites.png'),
+  'en:mustard': require('../assets/Allergen/mustard.png'),
+  // Add more allergens and their corresponding icons as needed
+};
 
 const AllergenDetails = ({ route }) => {
   const { barcodeData } = route.params;
-  const navigation = useNavigation(); // Hook to get navigation object
+  const navigation = useNavigation();
 
   const [productDetails, setProductDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch product details using Open Food Facts API
     const fetchProductDetails = async () => {
       try {
         const response = await axios.get(`https://world.openfoodfacts.org/api/v0/product/${barcodeData}.json`);
-        console.log("Response is retrieved");
         if (response.data.status === 1) {
           setProductDetails(response.data.product);
           setLoading(false);
@@ -34,26 +45,27 @@ const AllergenDetails = ({ route }) => {
     fetchProductDetails();
   }, [barcodeData]);
 
-  const handleGoBack = () => {
-    navigation.navigate('Scanner'); // Navigate back to the Scanner screen
+  const renderAllergen = (allergen) => {
+    if (allergenIcons[allergen]) {
+      const iconSource = allergenIcons[allergen];
+      return (
+        <View style={styles.allergenItem} key={allergen}>
+          <Image source={iconSource} style={styles.allergenIcon} />
+          <Text style={styles.allergenText}>{allergen}</Text>
+        </View>
+      );
+    }
+    return null;
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.goBackButton}>
-        <MaterialCommunityIcons
-          name="arrow-left"
-          size={24}
-          color="black"
-          onPress={handleGoBack}
-        />
-      </View>
       {loading ? (
         <Text>Loading...</Text>
       ) : error ? (
         <Text>{error}</Text>
       ) : (
-        <View>
+        <View style={styles.productDetailsContainer}>
           <Text style={styles.title}>Product Details</Text>
           <Image style={styles.productImage} source={{ uri: productDetails.image_url }} />
           <Text style={styles.productName}>{productDetails.product_name}</Text>
@@ -61,11 +73,7 @@ const AllergenDetails = ({ route }) => {
           {productDetails.allergens_tags.length > 0 ? (
             <View>
               <Text style={styles.details}>Allergen Information:</Text>
-              {productDetails.allergens_tags.map((allergen, index) => (
-                <Text key={index} style={styles.details}>
-                  {allergen}
-                </Text>
-              ))}
+              {productDetails.allergens_tags.map((allergen) => renderAllergen(allergen))}
             </View>
           ) : (
             <Text style={styles.noDetails}>No allergen information found.</Text>
@@ -78,6 +86,12 @@ const AllergenDetails = ({ route }) => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    alignItems: 'center',
+    //justifyContent: 'center',
+    padding: 20,
+  },
+  productDetailsContainer: {
     alignItems: 'center',
   },
   title: {
@@ -91,7 +105,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   productName: {
-    fontSize: 18,
+    fontSize: 20, // Changed font size
     marginBottom: 10,
   },
   barcode: {
@@ -99,7 +113,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   details: {
-    fontSize: 16,
+    fontSize: 18, // Highlighted "Allergen Information" with a larger font size
+    fontWeight: 'bold',
     marginBottom: 5,
   },
   noDetails: {
@@ -107,9 +122,18 @@ const styles = StyleSheet.create({
     color: 'red',
     margin: 10,
   },
-  goBackButton: {
-    alignSelf: 'flex-start',
-    margin: 10,
+  allergenItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
+  allergenIcon: {
+    width: 24,
+    height: 24,
+  },
+  allergenText: {
+    fontSize: 16,
+    marginLeft: 10,
   },
 });
 
