@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, View, StyleSheet, Button, Image, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, Button, Image, ScrollView, Alert } from 'react-native';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { UserContext } from './UserContext';
 import { FIREBASE_DB } from '../firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, getDoc } from 'firebase/firestore';
 
 const allergenIcons = {
   'en:gluten': require('../assets/Allergen/gluten.png'),
@@ -32,6 +32,9 @@ export default function BarcodeScanner({ onBarcodeScanned }) {
   const navigation = useNavigation();
   const [productName, setProductName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [userAllergens, setUserAllergens] = useState('');
+
+  //const productAllergens = ['en:fish', 'en:sesame-foods', 'en:mustard', 'en:sulphur-dioxide-and-sulphites', 'en:eggs'];
 
   //const {state} = useUser();
   //const user = state.loginUser;
@@ -48,6 +51,27 @@ export default function BarcodeScanner({ onBarcodeScanned }) {
   useEffect(() => {
     askForCameraPermission();
   }, []);
+
+  
+
+  // Function to check if a product contains preferred allergens
+  const containsPreferredAllergen = (userPreferences, productAllergens) => {
+    for (const allergen of productAllergens) {
+      // Extract the allergen key (removing the "en:" prefix) and replace underscores with hyphens
+      // const cleanAllergen = allergen.replace('en:', '').replace('-', '_');
+      console.log("clean Allergens are: ", allergen)
+      console.log("clean Allergens peanuts: ", userPreferences["en:peanuts"])
+      console.log("user preferences are: ", userPreferences)
+
+      if (userPreferences["en:peanuts"]) {
+        // If the user has this allergen as preferred, return true
+        return true;
+      }
+    }
+
+    // If none of the product allergens match the preferred allergens, return false
+    return false;
+  };
 
   // What happens when we scan the barcode
   const handleBarCodeScanned = async ({ type, data }) => {
@@ -75,7 +99,7 @@ export default function BarcodeScanner({ onBarcodeScanned }) {
         console.log("user uid inside console is: ", loggedInUser.uid);
       //console.log("inside flag: ", allergenDetails)
         if(loggedInUser) {
-          console.log("allergenDetails are: ", productDetails);
+          //console.log("allergenDetails are: ", productDetails);
           const productData = {
             barcode: data,
             //productName: allergenDetails.product_name,
@@ -90,21 +114,93 @@ export default function BarcodeScanner({ onBarcodeScanned }) {
           // todoRef.add(productData);
 
           const productsRef = collection(FIREBASE_DB, 'users');
+          const userRef = doc(FIREBASE_DB, 'preferences', loggedInUser.uid);
+
+          try {
+            const [addProductResponse, userPreferencesSnapshot] = await Promise.all([
+              addDoc(productsRef, productData),
+              getDoc(userRef),
+            ]);
+            console.log('data submitted')
+            if (userPreferencesSnapshot.exists()) {
+              const userAllergens = userPreferencesSnapshot.data();
+              console.log('User allergens are:', userAllergens);
+        
+              // Check if the product contains preferred allergens
+              const allergies = productDetails.allergens_tags;
+              const hasPreferredAllergens = containsPreferredAllergen(userAllergens, allergies);
+              console.log('Allergies are:', hasPreferredAllergens);
+        
+              if (hasPreferredAllergens) {
+                // Display an alert with red text to indicate an emergency or danger
+                setTimeout(() => {
+                  Alert.alert(
+                    'Allergen Alert',
+                    'This product contains your preferred allergens.',
+                    [
+                      { text: 'OK', onPress: () => console.log('OK Pressed') },
+                    ],
+                    {
+                      titleStyle: {
+                        color: 'red', // Set the title text color to red
+                      },
+                      messageStyle: {
+                        color: 'red', // Set the message text color to red
+                      },
+                    }
+                  );
+                }, 1300);
+              }
+            } else {
+              console.log("User preferences document doesn't exist.");
+            }
+          } catch (error) {
+            console.error('Error adding product data to Firestore or fetching user preferences:', error);
+          }
 
           // Add the product data to the collection
-          try {
-            await addDoc(productsRef, productData).then(() => {
-              console.log('data submitted')
-            }).catch((error) => {
-              console.log(error);
-            });
-            console.log("Product data added to Firestore:", productData);
-          } catch (error) {
-            console.error("Error adding product data to Firestore:", error);
-          }
-      
+          // try {
+          //   await addDoc(productsRef, productData).then(() => {
+          //     console.log('data submitted')
+          //   }).catch((error) => {
+          //     console.log(error);
+          //   });
+          //   console.log("Product data added to Firestore:", productData);
+          // } catch (error) {
+          //   console.error("Error adding product data to Firestore:", error);
+          // }
 
+          // try {
+          //   const docSnap = await getDoc(userRef);
+
+          //   if (docSnap.exists()) {
+          //     const data = docSnap.data();
+          //     console.log("User allergens are: ", data);
+          //     setUserAllergens(data);
+          //     // setAllergenPreferences(data);
+          //   } else {
+          //     console.log("User preferences document doesn't exist.");
+          //   }
+          // } catch (error) {
+          //   console.error('Error fetching user preferences:', error);
+          // }
+
+          // //console.log("allergens are: ", containsPreferredAllergen(userAllergens, productDetails.allergens_tags));
+
+          // // Check if the product contains preferred allergens
+          // const allergies = productDetails.allergens_tags;
+          // const a = containsPreferredAllergen(userAllergens, allergies);
+          // console.log("Allergies are: ", a);
+          // if (a) {
+          //   // Display an alert with red text
+          //   setTimeout(() => {
+          //     Alert.alert('Allergen Alert', 'This product contains your preferred allergens.', [
+          //       { text: 'OK', onPress: () => console.log('OK Pressed') },
+          //     ]);
+          //   }, 2000);
+          // }
         }
+        //navigation.navigate('ProductDetails', { productDetails: productDetails, userAllergens: userAllergens });
       } else {
         setAllergenDetails('No product information found.');
         setShowDetails(true); // Show allergen details
@@ -202,7 +298,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
-    //justifyContent: 'center',
+    justifyContent: 'center',
   },
   maintext: {
     fontSize: 16,

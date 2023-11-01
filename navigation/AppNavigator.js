@@ -10,6 +10,7 @@ import SettingsScreen from '../components/SettingsScreen';
 import BarcodeScanner from '../components/BarcodeScanner';
 import AllergenDetails from '../components/AllergenDetails';
 import LoginScreen from '../components/LoginScreen';
+import ProductDetailsScreen from '../components/ProductDetailsScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,21 @@ const HistoryStack = () => (
   <Stack.Navigator>
     <Stack.Screen name='History' component={HistoryScreen} />
     <Stack.Screen name='AllergenDetails' component={AllergenDetails}/>
+  </Stack.Navigator>
+)
+
+const BarcodeStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+          name='Scanner'
+          options={{
+            tabBarLabel: 'Scanner',
+            tabBarIcon: ({ color, size }) => (
+              <FontAwesome name='camera' size={size} color={color} />
+            ),
+          }}>
+          {() => <BarcodeScanner onBarcodeScanned={handleBarcodeScanned} />} </Stack.Screen>
+    <Stack.Screen name='Details' component={ProductDetailsScreen}></Stack.Screen>
   </Stack.Navigator>
 )
 const AllergenStack = createNativeStackNavigator();
