@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { FIREBASE_DB } from '../firebase';
-import { UserContext } from './UserContext';
+import { UserContext } from '../context/UserContext';
 import ProductDetails from './ProductDetailsCard';
 
 const HistoryScreen = ({ navigation, uid }) => { // Pass the uid as a prop to the component
@@ -31,6 +31,8 @@ const HistoryScreen = ({ navigation, uid }) => { // Pass the uid as a prop to th
         } catch (error) {
           console.error('Error fetching history data:', error);
         }
+        } else {
+            setHistoryData([]);
         }
       
     };
@@ -38,10 +40,23 @@ const HistoryScreen = ({ navigation, uid }) => { // Pass the uid as a prop to th
     fetchHistoryData();
   }, [loggedInUser]); // Re-fetch when the uid changes
 
+
+
   // Function to handle the card press and navigate to AllergenDetails
   const handleProductPress = (barcode) => {
     console.log("product press barcod is: ", barcode);
-    navigation.navigate('AllergenDetails', { barcodeData: barcode });
+    navigation.navigate('Details', { barcodeData: barcode });
+  };
+
+  // Function to delete an item from Firebase
+const handleDeletePress = async (id) => {
+    try {
+      await deleteDoc(doc(FIREBASE_DB, 'users', id)); // Assuming 'users' is the collection where items are stored
+      // Update the state to remove the item with the matching id
+      setHistoryData(historyData.filter(item => item.id !== id));
+    } catch (error) {
+      console.error("Error removing document: ", error);
+    }
   };
 
   return (
@@ -56,12 +71,9 @@ const HistoryScreen = ({ navigation, uid }) => { // Pass the uid as a prop to th
             barcode={item.barcode}
             scannedAt={item.scannedAt}
             onPress={() => handleProductPress(item.barcode)}
+            onDeletePress={() => handleDeletePress(item.id)}
             index={item.key}
             />
-          // <View style={styles.historyItem}>
-          //   <Text>Barcode: {item.barcode}</Text>
-          //   <Text>Scanned At: {item.scannedAt.toDate().toLocaleString()}</Text>
-          // </View>
         )}
       />
     </View>

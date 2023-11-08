@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Button, Text, Image, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
-const ProductDetailsCard = ({ productName, imageSource, barcode, scannedAt, onPress, index }) => {
+const ProductDetailsCard = ({ productName, imageSource, barcode, scannedAt, onPress, index, onDeletePress }) => {
   const entryColors = ['#CCCCFF', '#9FE2BF']; // Define your background colors
   const cardBackgroundColor = entryColors[index % entryColors.length]; // Randomly select a color
 
@@ -18,13 +19,11 @@ const ProductDetailsCard = ({ productName, imageSource, barcode, scannedAt, onPr
                 <Text style={styles.grade}>{productName}</Text>
                 <Text />
                 <Text style={styles.absences}>Barcode: {barcode}</Text>
-                {/* <View style={styles.additionalInfo}>
-                <View style={styles.absencesContainer}>
-                    <Text style={styles.absences}>Barcode: {barcode}</Text>
-                </View>
-                </View> */}
             </View>
             </View>
+            <TouchableOpacity style={styles.deleteButton} onPress={onDeletePress}>
+                <Icon name="close" size={20} color="#FF0000" />
+            </TouchableOpacity>
         </View>
         </View>
     </TouchableOpacity>
@@ -98,6 +97,16 @@ const styles = StyleSheet.create({
     color: 'black',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  deleteButton: {
+    // style your delete button here
+    padding: 1,
+    position: 'right',
+    right: 15,
+    top: 27,
+    borderRadius: 20, // Half of the width and height to make it a circle
+    width: 40, // Width of the button
+    height: 40, // Height of the button
   },
 });
 
