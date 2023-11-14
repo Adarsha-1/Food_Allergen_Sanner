@@ -49,24 +49,27 @@ const ProductDetailsScreen = ({ route }) => {
     // Function to save product to Firestore
     const saveProductToFirestore = async (product) => {
       if (loggedInUser) {
-        const productData = {
-            barcode: barcode,
-            scannedAt: new Date(),
-            imageUrl: product.image_url,
-            productName: product.product_name,
-            uid: loggedInUser.uid,
+        if(product.product_name) {
+            const productData = {
+              barcode: barcode,
+              scannedAt: new Date(),
+              imageUrl: product.image_url,
+              productName: product.product_name,
+              uid: loggedInUser.uid,
+          }
+          const productsRef = collection(FIREBASE_DB, 'users');
+          try {
+              await addDoc(productsRef, productData).then(() => {
+                      console.log('data submitted')
+                    }).catch((error) => {
+                      console.log(error);
+                    });
+            console.log('Product saved to Firestore');
+          } catch (error) {
+            console.error("Error saving product to Firestore", error);
+          }
         }
-        const productsRef = collection(FIREBASE_DB, 'users');
-        try {
-            await addDoc(productsRef, productData).then(() => {
-                    console.log('data submitted')
-                  }).catch((error) => {
-                    console.log(error);
-                  });
-          console.log('Product saved to Firestore');
-        } catch (error) {
-          console.error("Error saving product to Firestore", error);
-        }
+        
       }
     };
 

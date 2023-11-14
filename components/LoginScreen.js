@@ -43,7 +43,7 @@ const LoginScreen = () => {
     try {
         const response = await createUserWithEmailAndPassword(auth, email, password);
         console.log(response);
-        alert('Check your emails!');
+        alert('Account created successfully!');
     } catch (error) {
         console.log(error);
     } finally {
