@@ -25,6 +25,14 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiKey": "AIzaSyAyXep8dOJvDlNnhsuQWX4tEfgNE-tadU8",
+      "authDomain": "fir-auth-8c0f6.firebaseapp.com",
+      "projectId": "fir-auth-8c0f6",
+      "storageBucket": "fir-auth-8c0f6.appspot.com",
+      "messagingSenderId": "31785771258",
+      "appId": "1:31785771258:web:4903ef6fe8294d2ce4a943"
     }
   }
 }

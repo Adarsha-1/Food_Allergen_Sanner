@@ -29,7 +29,7 @@ const HomeNavigator = () => {
 const SettingsNavigator = () => {
     return (
       <Stack.Navigator>
-        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="SettingsChild" component={SettingsScreen} options={{title: 'Settings'}} />
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: true }} />
       </Stack.Navigator>
     );
@@ -49,7 +49,7 @@ const SearchAllergenStack = () => {
 const HistoryNavigator = () => {
 return (
     <Stack.Navigator>
-    <Stack.Screen name="Histor" component={HistoryScreen} />
+    <Stack.Screen name="HistoryChild" component={HistoryScreen} options={{title: 'History'}}/>
     <Stack.Screen name="Details" component={AllergenDetails} options={{ headerShown: true }} />
     </Stack.Navigator>
 );
@@ -68,7 +68,7 @@ const AppNavigator = () => {
               iconName = focused ? 'history' : 'history';
             } else if (route.name === 'Home') {
               iconName = focused ? 'home' : 'home';
-            } else if (route.name === 'SettingsScreen') {
+            } else if (route.name === 'Settings') {
               iconName = focused ? 'settings' : 'settings';
             } else if (route.name === 'search') {
               iconName = focused ? 'search' : 'search';
@@ -83,8 +83,8 @@ const AppNavigator = () => {
       >
         <Tab.Screen name="History" component={HistoryNavigator} options={{headerShown: false }} />
         <Tab.Screen name="Home" component={HomeNavigator} options={{headerShown: false }} />
-        <Tab.Screen name="SettingsScreen" component={SettingsNavigator} options={{headerShown: false }}/>
         <Tab.Screen name="search" component={SearchAllergenStack}/>
+        <Tab.Screen name="Settings" component={SettingsNavigator} options={{headerShown: false }}/>
         {/* <Tab.Screen name="Login" component={LoginScreen} /> */}
       </Tab.Navigator>
     </NavigationContainer>

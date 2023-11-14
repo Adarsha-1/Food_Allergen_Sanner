@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     padding: 10,
-    backgroundColor: '#007bff',
+    backgroundColor: '#D3D3D3',
     marginRight: 10, // Added space between search button and clear button
   },
   clearButton: {
